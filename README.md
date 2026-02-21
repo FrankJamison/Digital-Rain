@@ -1,40 +1,110 @@
-# 2026DigitalRain
+# Digital Rain
 
-A lightweight, static “digital rain” / Matrix-style screen built with HTML + CSS animations.
+A lightweight, static “digital rain” / Matrix-style screen built with **HTML + CSS animations**.
 
-- No build step, no JavaScript
-- CSS-driven falling columns, scanlines, vignette, and subtle flicker
-- Respects `prefers-reduced-motion`
+Live preview: https://digitalrain.fcjamison.com/
 
-## Project Structure
+## What This Is
+
+This project renders a Matrix-style effect without JavaScript:
+
+- The “rain” is **pre-authored HTML**: each column contains a `.stream` with characters separated by `<br>`.
+- The motion is **pure CSS**: each stream animates vertically using `@keyframes fall`.
+- Atmosphere is handled by **CSS overlays** (scanlines, vignette, subtle flicker).
+
+## Features
+
+- No build step
+- No JavaScript
+- CSS-driven falling columns + scanlines + vignette + subtle flicker
+- Respects `prefers-reduced-motion` (disables the falling animation and flicker)
+
+## Project Layout
 
 - `index.html` — markup for the columns/streams of characters
-- `styles.css` — all styling + animation keyframes
-- `meta.json` — project metadata (art name + author handle)
+- `styles.css` — styling + animation keyframes + motion preferences
+- `meta.json` — metadata for the piece (name + author handle)
 
-## Run Locally
+## Local Development
 
-### Option A: Open the file directly
+Because it’s static, you can either open the file directly or serve it from a local web server.
 
-Double-click `index.html` (or drag it into a browser window).
+### Option A: Open directly
 
-### Option B: Serve via your local web server
+Open `index.html` in a browser (double-click or drag into the window).
 
-If you already have a local web server pointed at this folder, open the site URL it provides.
+### Option B: Serve locally (recommended)
 
-In this workspace, there is a VS Code task named **Open in Browser** that opens:
+Serving avoids any browser quirks around local file URLs and more closely matches production hosting.
 
-- `http://2026digitalrain.localhost/`
+Pick one:
 
-(That hostname needs to resolve to your local server setup.)
+- Python: `python -m http.server 8000`
+- Node: `npx serve .`
+- PHP: `php -S localhost:8000`
 
-## Notes / Tweaks
+Then open `http://localhost:8000/`.
 
-Common places to adjust the look/performance:
+### VS Code task in this workspace
 
-- Column density: `.matrix { grid-template-columns: repeat(300, 1fr); }` in `styles.css`
-- Text size: `.stream { font-size: 12px; line-height: 12px; }`
-- Speed/opacity variance: inline CSS variables on each `.stream` element (`--dur`, `--delay`, `--opa`)
+This workspace includes a task named **Open in Browser** that opens:
+
+- `http://digitalrain.localhost/`
+
+That hostname must be mapped to a local server in your environment (it’s not created by this repo).
+
+## How It Works (Developer Notes)
+
+### Streams and per-stream tuning
+
+Each stream is a `.stream` element with inline CSS variables that randomize the motion/opacity:
+
+- `--dur` — animation duration (e.g. `4.72s`)
+- `--delay` — negative delay to “seed” the stream at a random point in the animation
+- `--opa` — per-stream opacity multiplier
+
+These variables are read by `.stream` in `styles.css`:
+
+- `animation: fall var(--dur, 8s) linear infinite;`
+- `animation-delay: var(--delay, -3s);`
+- `opacity: var(--opa, .9);`
+
+### Column density
+
+The overall density is controlled by the grid on `.matrix`:
+
+- `grid-template-columns: repeat(300, 1fr);`
+
+Reducing that number makes fewer columns (faster/less dense). Increasing it makes the rain denser.
+
+### Typography and glow
+
+Primary knobs in `styles.css`:
+
+- `.stream { font-size: 12px; line-height: 12px; }`
+- `.stream { color: rgba(0, 255, 102, .42); }`
+- `.stream { text-shadow: 0 0 6px rgba(0, 255, 100, .45); }`
+- `.head { color: rgba(235, 255, 245, .95); }` (the leading “bright” character)
+
+### Accessibility / reduced motion
+
+In `styles.css`, the `@media (prefers-reduced-motion: reduce)` block disables:
+
+- the falling stream animation
+- the vignette flicker animation
+
+If you add new animations, include them in the same media query so motion-reduction stays consistent.
+
+## Deployment
+
+This is a static site. Deploy by uploading `index.html` + `styles.css` (and optionally `meta.json`) to any static host:
+
+- GitHub Pages
+- Netlify / Vercel
+- S3 / Cloudflare Pages
+- Any standard web server (Apache/Nginx)
+
+No build output is produced; what you see in the repo is what you deploy.
 
 ## Metadata
 
